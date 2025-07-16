@@ -1,9 +1,23 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase"
 
 export default function Home() {
   const router = useRouter()
+
+  const handleViewFiles = async () => {
+    const { data: userData, error } = await supabase.auth.getUser()
+    const id = userData?.user?.id
+
+    if (error || !id) {
+      console.warn("🔒 Not authenticated — redirecting to login")
+      router.push("/login")
+    } else {
+      console.log("✅ Authenticated — redirecting to my-files")
+      router.push("/my-files")
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -30,12 +44,21 @@ export default function Home() {
         <p className="mt-4 text-md text-center text-gray-500 max-w-xl">
           Whether you're cleaning datasets, transforming schemas, or visualizing large data batches—AutoDS helps streamline your workflow with intuitive tools and real-time feedback.
         </p>
-        <button
-          onClick={() => router.push("/upload-csv")}
-          className="mt-6 px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-        >
-          Upload CSV
-        </button>
+
+        <div className="mt-6 flex space-x-4">
+          <button
+            onClick={() => router.push("/upload-csv")}
+            className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          >
+            Upload CSV
+          </button>
+          <button
+            onClick={handleViewFiles}
+            className="px-6 py-3 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+          >
+            View My Files
+          </button>
+        </div>
       </main>
     </div>
   )

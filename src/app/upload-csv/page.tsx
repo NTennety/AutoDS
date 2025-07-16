@@ -30,19 +30,22 @@ export default function UploadCSV() {
 
     setUploading(true)
 
+    // Get the current user's ID
     const { data: userData, error: userError } = await supabase.auth.getUser()
-    const userId = userData?.user?.id
+    const id = userData?.user?.id
 
-    if (userError || !userId) {
+    if (userError || !id) {
       setMessage("Unable to retrieve user ID.")
       setUploading(false)
       return
     }
 
-    const filePath = `${userId}/${Date.now()}_${file.name}`
+    // File path format: id/timestamp_filename.csv
+    const timestamp = Date.now()
+    const filePath = `${id}/${timestamp}_${file.name}`
 
     const { error: uploadError } = await supabase.storage
-      .from("csv-uploads")
+      .from("upload-csv")
       .upload(filePath, file)
 
     if (uploadError) {
